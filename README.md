@@ -1,4 +1,5 @@
 # Trend Analyzer for the ASX
+(Side note: Sift through the headings to find the progression, it will be labled "Progress")
 
 ## Overview
 
@@ -38,7 +39,8 @@ This project was developed using a modular architecture to improve readability, 
 ### APIs
 
 * NewsAPI
-* Claude Api ---> Changed to Grok API (xAI) ---> Changed most recently to Groq (Not Xapi) API (I'm broke twin, I can't afford paying for an API)
+* Claude Api ---> Changed to Grok API (xAI) ---> Changed most recently to Groq (Not Xapi) API (I'm broke twin, I can't afford paying for an API)  (╥_╥)
+
 
 ### Libraries
 
@@ -112,8 +114,13 @@ python app.py
 6. Open your browser and navigate to:
 
 ```
-http://127.0.0.1:5000
+http://127.0.0.1:5000 (Or whaterver your local host is, when you run step 5 on powershell [VScode] it should tell you what to search. 
 ```
+---
+```
+## Trouble shooting
+```
+- I will be testing the running in all sorts of ways, if I find any faults I can't fix that may need the user to debug on their side, I will include it here. 
 
 ---
 
