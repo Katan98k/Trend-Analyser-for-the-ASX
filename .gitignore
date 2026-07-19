@@ -27,5 +27,3 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Cursor agents (local tooling)
-.agents/
