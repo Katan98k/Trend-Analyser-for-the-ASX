@@ -79,9 +79,9 @@ config.py
 requirements.txt
 
 ---
-
+```
 ## Installation
-
+```
 1. Clone or download the project.
 2. Install the required Python packages:
 
@@ -124,8 +124,65 @@ http://127.0.0.1:5000 (Or whaterver your local host is, when you run step 5 on p
 
 ---
 
-## How It Works
+```
+## Progress:
+(All unlabeled should be assumed as not ready yet)
+```
+TrendAnalyzer/
+│
+├── app.py = Commited, may be subject to change
+├── config.py = Commited, may be subject to change
+├── requirements.txt = Commited, may be subject to change
+├── .env/(.env.example) = Commited, may be subject to change
+│
+├── database/
+│   ├── database.py
+│   ├── models.py
+│   └── schema.sql
+│
+├── api/
+│   ├── news_api.py
+│   ├── grok_api.py
+│   └── cache.py
+│
+├── analysis/
+│   ├── sentiment.py
+│   ├── risk.py
+│   ├── sureness.py
+│   └── statistics.py
+│
+├── graphs/
+│   └── graph_generator.py
+│
+├── routes/
+│   ├── home.py
+│   ├── analyse.py
+│   ├── history.py
+│   ├── ai.py
+│   └── settings.py
+│
+├── templates/
+│   ├── base.html
+│   ├── dashboard.html
+│   ├── analyse.html
+│   ├── history.html
+│   ├── graph.html
+│   └── ai_query.html
+│
+├── static/
+│   ├── css/
+│   ├── js/
+│   └── images/
+│
+└── utils/
+    ├── helpers.py
+    └── validation.py
 
+---
+
+```
+## How It Works
+```
 1. The user enters an ASX ticker.
 2. The application retrieves recent news articles.
 3. Sentiment analysis and risk analysis are performed.
