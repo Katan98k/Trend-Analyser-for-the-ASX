@@ -130,26 +130,32 @@ http://127.0.0.1:5000 (Or whaterver your local host is, when you run step 5 on p
 ```
 TrendAnalyzer/
 │
-├── app.py = Commited, may be subject to change
-├── config.py = Commited, may be subject to change
-├── requirements.txt = Commited, may be subject to change
-├── .env/(.env.example) = Commited, may be subject to change
+├── app.py
+├── config.py
+├── requirements.txt
+├── .env
+├── .env.example
+├── .gitignore
 │
-├── database/
-│   ├── database.py
-│   ├── models.py
-│   └── schema.sql
-│
-├── api/
-│   ├── news_api.py
-│   ├── grok_api.py
-│   └── cache.py
+├── .venv/                  # Python virtual environment
+├── .venv-1/                # Old/backup virtual environment (if still needed)
+├── __pycache__/            # Python cache (auto-generated)
 │
 ├── analysis/
 │   ├── sentiment.py
 │   ├── risk.py
 │   ├── sureness.py
 │   └── statistics.py
+│
+├── api/
+│   ├── news_api.py
+│   ├── grok_api.py
+│   └── cache.py
+│
+├── database/
+│   ├── database.py
+│   ├── models.py
+│   └── schema.sql
 │
 ├── graphs/
 │   └── graph_generator.py
@@ -167,17 +173,25 @@ TrendAnalyzer/
 │   ├── analyse.html
 │   ├── history.html
 │   ├── graph.html
-│   └── ai_query.html
+│   ├── ai_query.html
+│   ├── articles.html
+│   ├── select_articles.html
+│   ├── edit_notes.html
+│   ├── trends.html
+│   └── settings.html
 │
 ├── static/
 │   ├── css/
 │   ├── js/
 │   └── images/
 │
-└── utils/
-    ├── helpers.py
-    └── validation.py
-
+├── utils/
+│   ├── helpers.py
+│   └── validation.py
+│
+├── tmp/                    # Temporary files / generated content
+│
+└── Design outlines/        # Design documentation (SRS, mockups, and stuff) (Will not be included in final upload)
 ---
 
 ```
