@@ -142,12 +142,12 @@ TrendAnalyzer/
 ├── .venv/                  # Python virtual environment (Will be prompted to create on VS code, or just download it)
 ├── __pycache__/            # Python cache (auto-generated)
 │
-├── analysis/
-│   ├── sentiment.py
-│   ├── risk.py
-│   ├── sureness.py
-|   ├── trustworthiness.py
-│   └── statistics.py
+├── analysis/ 
+│   ├── sentiment.py ✔
+│   ├── risk.py ✔
+│   ├── sureness.py ✔
+|   ├── trustworthiness.py ✔
+│   └── statistics.py ✔
 │
 ├── api/
 │   ├── news_api.py
