@@ -155,7 +155,7 @@ TrendAnalyzer/
 │   └── cache.py ✔
 │
 ├── database/
-│   ├── database.py
+│   ├── database.py ✔ (Partially complete)
 │   ├── models.py
 |   ├── trend_analyzer.db
 │   └── schema.sql
