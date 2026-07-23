@@ -99,19 +99,13 @@ NEWS_API_KEY=your_newsapi_key
 GROK_API_KEY=your_grok_api_key
 ```
 
-4. Download the TextBlob language data:
-
-```
-python -m textblob.download_corpora
-```
-
-5. Run the application:
+4. Run the application:
 
 ```
 python app.py
 ```
 
-6. Open your browser and navigate to:
+5. Open your browser and navigate to:
 
 ```
 http://127.0.0.1:5000 (Or whaterver your local host is, when you run step 5 on powershell [VScode] it should tell you what to search. 
