@@ -150,9 +150,9 @@ TrendAnalyzer/
 │   └── statistics.py ✔
 │
 ├── api/
-│   ├── news_api.py
-│   ├── grok_api.py
-│   └── cache.py
+│   ├── news_api.py ✔ 
+│   ├── grok_api.py ✔ 
+│   └── cache.py ✔
 │
 ├── database/
 │   ├── database.py
