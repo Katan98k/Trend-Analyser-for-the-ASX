@@ -1,4 +1,11 @@
-"""Explainable, keyword-based financial risk analysis for ASX news."""
+"""
+---------------------------------------------------------
+Trend Analyzer for the ASX
+
+Risk analysis using hard coded words.
+Author: Karan Attavar
+---------------------------------------------------------
+"""
 
 import re
 
