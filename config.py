@@ -14,7 +14,7 @@ application, including:
 • Graph Storage Folder
 • Cache Settings
 
-Sensitive information is loaded from the .env file.
+Sensitive information (API keys) are loaded from the .env file.
 ---------------------------------------------------------
 """
 
@@ -62,7 +62,9 @@ class Config:
 
     SECRET_KEY = os.getenv("SECRET_KEY", "development_secret_key")
 
-    DEBUG = True
+    # Read DEBUG from the environment so it is off by default in production.
+    # Set DEBUG=true (or 1) in .env for local development.
+    DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
     # -------------------------------------------------
     # Database
