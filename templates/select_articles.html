@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Select News Articles | ASX Trend Analyzer{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="fw-bold text-dark mb-2">Select News Articles</h2>
+                <p class="text-muted mb-4">
+                    Choose the articles to include for {{ company_name }} ({{ ticker }}). Their NewsAPI publication dates will be used in the trend graphs.
+                </p>
+
+                <form action="{{ url_for('analyse.run_analysis') }}" method="POST">
+                    <input type="hidden" name="action" value="analyse_selected">
+                    <input type="hidden" name="selection_token" value="{{ selection_token }}">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="small text-muted">{{ articles|length }} articles found. All are selected by default.</span>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="toggle-articles">Select none</button>
+                    </div>
+
+                    <div class="list-group mb-4">
+                        {% for article in articles %}
+                        <label class="list-group-item list-group-item-action py-3">
+                            <div class="d-flex gap-3">
+                                <input class="form-check-input mt-1 article-checkbox" type="checkbox" name="article_indexes" value="{{ loop.index0 }}" checked>
+                                <div class="flex-grow-1">
+                                    <strong>{{ article.title or 'Untitled article' }}</strong>
+                                    <div class="small text-muted mt-1">Published: {{ article.publishedAt or 'Date unavailable' }}</div>
+                                    {% if article.description %}<p class="mb-0 mt-2 small">{{ article.description }}</p>{% endif %}
+                                </div>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a href="{{ url_for('analyse.run_analysis') }}" class="btn btn-outline-secondary">Start New Search</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-chart-line me-1"></i> Analyse Selected Articles
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('toggle-articles').addEventListener('click', function () {
+    const boxes = document.querySelectorAll('.article-checkbox');
+    const selectAll = Array.from(boxes).some(box => !box.checked);
+    boxes.forEach(box => { box.checked = selectAll; });
+    this.textContent = selectAll ? 'Select none' : 'Select all';
+});
+</script>
+{% endblock %}
