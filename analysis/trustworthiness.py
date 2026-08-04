@@ -1,4 +1,14 @@
-"""Transparent source-based trustworthiness scoring for news articles."""
+"""
+---------------------------------------------------------
+Trend Analyzer for the ASX
+Article Trustworthiness Analyzer
+
+Estimates source reliability with documented publisher
+tiers and article-quality indicators for transparent review.
+
+Author: Karan Attavar
+---------------------------------------------------------
+"""
 
 from urllib.parse import urlparse
 
@@ -83,6 +93,7 @@ class TrustworthinessAnalyzer:
     }
 
     def calculate(self, article):
+        """Return a 0-100 reliability score from source and content signals."""
         source_name = (article.get("source") or {}).get("name", "").lower()
         url = article.get("url") or ""
         domain = urlparse(url).netloc.lower()

@@ -17,6 +17,7 @@ class SurenessAnalyzer:
 
     @staticmethod
     def _clamp(value):
+        """Round and constrain a confidence value to the 0-100 range."""
         return max(0, min(100, round(value, 2)))
 
     def calculate(self, sentiment_score, risk_score, article_count=None):

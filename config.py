@@ -24,6 +24,7 @@ try:
     from dotenv import load_dotenv
 except ImportError:  # pragma: no cover - optional dependency
     def load_dotenv():
+        """Provide a harmless fallback when python-dotenv is unavailable."""
         return False
 
 # Load environment variables from .env

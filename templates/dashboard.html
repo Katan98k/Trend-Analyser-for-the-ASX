@@ -1,34 +1,180 @@
+{#
+  Trend Analyzer for the ASX - Market Intelligence Dashboard
+  Summarises saved metrics and provides fast access to recent analysis records.
+  Author: Karan Attavar
+#}
 {% extends "base.html" %}
 
 {% block title %}Dashboard | ASX Trend Analyzer{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+<div class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 border-bottom pb-3">
     <div>
-        <h1 class="h2 fw-bold">Market Intelligence Dashboard</h1>
-        <p class="text-muted mb-0">A starting point for ASX market sentiment analysis.</p>
+        <div class="small text-uppercase fw-bold text-primary mb-2">Market workspace</div>
+        <h1 class="fw-bold text-dark mb-1">Trend Analysis Overview</h1>
+        <p class="text-muted mb-0">Live ASX analysis signals and your most recent research runs.</p>
     </div>
-    <a href="{{ url_for('analyse.run_analysis') }}" class="btn btn-primary">New Analysis</a>
+    <div>
+        <a href="{{ url_for('analyse.run_analysis') }}" class="btn btn-primary shadow-sm">
+            <i class="fa-solid fa-plus me-1"></i> New Analysis
+        </a>
+    </div>
 </div>
 
 <div class="row g-4 mb-4">
-    <div class="col-md-4"><div class="card h-100 shadow-sm"><div class="card-body"><p class="text-muted mb-1">Average Sentiment</p><h2>{{ average_sentiment|round(1) }}/100</h2></div></div></div>
-    <div class="col-md-4"><div class="card h-100 shadow-sm"><div class="card-body"><p class="text-muted mb-1">Average Risk Index</p><h2>{{ average_risk|round(1) }}/100</h2></div></div></div>
-    <div class="col-md-4"><div class="card h-100 shadow-sm"><div class="card-body"><p class="text-muted mb-1">Average Confidence</p><h2>{{ average_sureness|round(1) }}/100</h2></div></div></div>
+    <div class="col-md-4">
+        <div class="card metric-card metric-sentiment h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted fw-semibold small text-uppercase">Average Sentiment</span>
+                    <i class="fa-solid fa-face-smile text-success fs-4 bg-success-subtle p-2 rounded"></i>
+                </div>
+                <h2 class="metric-value fw-bold mb-1">{{ average_sentiment|default(0)|round(1) }}</h2>
+                
+                <div class="progress mt-3" style="height: 8px;">
+                    <div class="progress-bar bg-success" role="progressbar"
+                         data-progress-width="{{ average_sentiment|default(0) }}"
+                         aria-valuenow="{{ average_sentiment|default(0) }}"
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-2 small text-muted">
+                    <span>Bearish (0)</span>
+                    <span>Bullish (100)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card metric-card metric-risk h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted fw-semibold small text-uppercase">Average Risk Index</span>
+                    <i class="fa-solid fa-triangle-exclamation text-danger fs-4 bg-danger-subtle p-2 rounded"></i>
+                </div>
+                <h2 class="metric-value fw-bold mb-1">{{ average_risk|default(0)|round(1) }}</h2>
+                
+                <div class="progress mt-3" style="height: 8px;">
+                    <div class="progress-bar bg-danger" role="progressbar"
+                         data-progress-width="{{ average_risk|default(0) }}"
+                         aria-valuenow="{{ average_risk|default(0) }}"
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-2 small text-muted">
+                    <span>Safe (0)</span>
+                    <span>High Risk (100)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card metric-card metric-sureness h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted fw-semibold small text-uppercase">Average Confidence</span>
+                    <i class="fa-solid fa-circle-check text-info fs-4 bg-info-subtle p-2 rounded"></i>
+                </div>
+                <h2 class="metric-value fw-bold mb-1">{{ average_sureness|default(0)|round(1) }}</h2>
+                
+                <div class="progress mt-3" style="height: 8px;">
+                    <div class="progress-bar bg-info" role="progressbar"
+                         data-progress-width="{{ average_sureness|default(0) }}"
+                         aria-valuenow="{{ average_sureness|default(0) }}"
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-2 small text-muted">
+                    <span>Uncertain (0)</span>
+                    <span>Certain (100)</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<section class="card shadow-sm">
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center pt-3 pb-0">
+        <h5 class="card-title fw-bold mb-0 text-dark">
+            <i class="fa-solid fa-clock-rotate-left me-1 text-secondary"></i> Recent Analyses (Last 10 Runs)
+        </h5>
+        <a href="{{ url_for('history.list_history') }}" class="btn btn-sm btn-outline-secondary">
+            View All History <i class="fa-solid fa-arrow-right ms-1"></i>
+        </a>
+    </div>
     <div class="card-body">
-        <h2 class="h5">Recent Analyses</h2>
         {% if records %}
-            <ul class="list-group list-group-flush">
-                {% for record in records %}
-                    <li class="list-group-item">{{ record.ticker }} — {{ record.company_name }}</li>
-                {% endfor %}
-            </ul>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ticker</th>
+                            <th>Company</th>
+                            <th>Analysis Date</th>
+                            <th class="text-center">Sentiment</th>
+                            <th class="text-center">Risk Index</th>
+                            <th class="text-center">Sureness</th>
+                            <th class="text-center">Articles</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in records %}
+                            <tr>
+                                <td><span class="badge bg-dark font-monospace px-2 py-1.5 fs-7">{{ r.ticker }}</span></td>
+                                <td class="fw-semibold text-truncate" style="max-width: 200px;">{{ r.company_name }}</td>
+                                <td><small class="text-muted">{{ r.analysis_date }}</small></td>
+                                
+                                <td class="text-center">
+                                    {% if r.sentiment_score >= 70 %}
+                                        <span class="badge bg-success-subtle text-success px-2 py-1.5 w-75">Bullish ({{ r.sentiment_score }})</span>
+                                    {% elif r.sentiment_score >= 50 %}
+                                        <span class="badge bg-info-subtle text-info px-2 py-1.5 w-75">Moderate ({{ r.sentiment_score }})</span>
+                                    {% else %}
+                                        <span class="badge bg-danger-subtle text-danger px-2 py-1.5 w-75">Bearish ({{ r.sentiment_score }})</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-center">
+                                    {% if r.risk_score >= 60 %}
+                                        <span class="text-danger fw-bold"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ r.risk_score }}</span>
+                                    {% elif r.risk_score >= 35 %}
+                                        <span class="text-warning fw-semibold">{{ r.risk_score }}</span>
+                                    {% else %}
+                                        <span class="text-success">{{ r.risk_score }}</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-center">
+                                    <span class="fw-bold">{{ r.sureness_score }}%</span>
+                                </td>
+
+                                <td class="text-center">
+                                    <span class="badge bg-secondary rounded-pill">{{ r.article_count }}</span>
+                                </td>
+
+                                <td class="text-end">
+                                    <a href="{{ url_for('history.view_record', record_id=r.id) }}" class="btn btn-sm btn-outline-primary me-1" title="View Detailed Report">
+                                        <i class="fa-solid fa-chart-line"></i> View
+                                    </a>
+                                    <a href="{{ url_for('history.view_articles', record_id=r.id) }}" class="btn btn-sm btn-outline-secondary" title="Read Selected Articles">
+                                        <i class="fa-solid fa-newspaper"></i> Articles
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% else %}
-            <p class="text-muted mb-0">No analysis records yet. Analysis tools will be added in the next stage.</p>
+            <div class="text-center py-5 my-3">
+                <i class="fa-solid fa-folder-open text-muted display-4 mb-3"></i>
+                <h4 class="fw-semibold">No analysis records found</h4>
+                <p class="text-muted mb-4 col-md-6 mx-auto">It looks like your database is currently empty. Run your first real-time sentiment analysis on an ASX company using the button below.</p>
+                <a href="{{ url_for('analyse.run_analysis') }}" class="btn btn-primary px-4 py-2">
+                    <i class="fa-solid fa-magnifying-glass-chart me-1"></i> Start Your First Analysis
+                </a>
+            </div>
         {% endif %}
     </div>
-</section>
+</div>
 {% endblock %}

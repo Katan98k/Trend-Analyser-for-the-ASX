@@ -1,0 +1,50 @@
+{#
+  Trend Analyzer for the ASX - Saved Article Evidence
+  Lists the news sources, metric scores, and trust indicators behind a saved run.
+  Author: Karan Attavar
+#}
+{% extends "base.html" %}
+
+{% block title %}Selected Articles | ASX Trend Analyzer{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h2 fw-bold mb-1">Selected News Articles</h1>
+        <p class="text-muted mb-0">{{ record.company_name }} ({{ record.ticker }}) · Analysis run {{ record.analysis_date }}</p>
+    </div>
+    <a href="{{ url_for('history.view_record', record_id=record.id) }}" class="btn btn-outline-secondary">Back to Report</a>
+</div>
+
+<div class="alert alert-info">
+    <strong>Trustworthiness score:</strong> a transparent source-based indicator (0–100), not a guarantee of factual accuracy.
+</div>
+
+{% for article in articles %}
+<article class="card border-0 shadow-sm mb-3">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between gap-3 align-items-start">
+            <div>
+                <h2 class="h5 fw-bold mb-1">{{ article.title }}</h2>
+                <p class="small text-muted mb-2">{{ article.source_name or 'Unknown source' }} · {{ article.published_at }}</p>
+            </div>
+            <span class="badge {% if article.trustworthiness_score >= 80 %}bg-success{% elif article.trustworthiness_score >= 60 %}bg-warning text-dark{% else %}bg-secondary{% endif %} text-nowrap">
+                Trust: {{ article.trustworthiness_score|round(0) }}/100
+            </span>
+        </div>
+        {% if article.description %}<p class="mb-3">{{ article.description }}</p>{% endif %}
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <span class="badge bg-info-subtle text-info">Sentiment {{ article.sentiment_score }}/100</span>
+            <span class="badge bg-danger-subtle text-danger">Risk {{ article.risk_score }}/100</span>
+            <span class="badge bg-dark">Sureness {{ article.sureness_score }}/100</span>
+            {% if article.article_url %}<a href="{{ article.article_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary ms-auto">Read original article <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></a>{% endif %}
+        </div>
+    </div>
+</article>
+{% else %}
+<div class="text-center py-5 bg-white rounded shadow-sm">
+    <h2 class="h5">No article details are available for this older analysis.</h2>
+    <p class="text-muted mb-0">Run a new analysis to save article sources, links, and trustworthiness scores.</p>
+</div>
+{% endfor %}
+{% endblock %}

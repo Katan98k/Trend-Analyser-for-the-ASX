@@ -1,0 +1,133 @@
+{#
+  Trend Analyzer for the ASX - Trend Visualisation
+  Filters and displays sentiment, risk, and sureness charts for selected companies.
+  Author: Karan Attavar
+#}
+{% extends "base.html" %}
+
+{% block title %}Trend Visualisation | ASX Trend Analyzer{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-column flex-md-row gap-3">
+        <div>
+                <div class="small text-uppercase fw-bold text-primary mb-2">Signal intelligence</div>
+                <h1 class="fw-bold mb-1 text-dark">Trend Analysis Overview</h1>
+            <p class="text-muted mb-0">Compare each company's article-based sentiment, risk, and prediction confidence over time.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('home.home') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('trend.view_trends') }}" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Ticker</label>
+                <div class="dropdown">
+                    <button class="form-select text-start dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span id="ticker-selection-label">
+                            {% if selected_tickers %}{{ selected_tickers|join(', ') }}{% else %}All ASX Tickers{% endif %}
+                        </span>
+                    </button>
+                    <div class="dropdown-menu w-100 p-3" style="max-height: 300px; overflow-y: auto;">
+                        <div class="form-check border-bottom pb-2 mb-2">
+                            <input class="form-check-input" type="checkbox" id="all-tickers" {% if not selected_tickers %}checked{% endif %}>
+                            <label class="form-check-label fw-semibold" for="all-tickers">All ASX Tickers</label>
+                        </div>
+                        {% for ticker in available_tickers %}
+                        <div class="form-check">
+                            <input class="form-check-input ticker-choice" type="checkbox" name="tickers" value="{{ ticker }}" id="ticker-{{ ticker }}"
+                                   {% if ticker in selected_tickers %}checked{% endif %}>
+                            <label class="form-check-label" for="ticker-{{ ticker }}">{{ ticker }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-text">Choose one or more companies, or leave All ASX Tickers selected.</div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Start Date</label>
+                <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">End Date</label>
+                <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-primary">Load Trends</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if graphs %}
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card chart-card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <h5 class="fw-bold">Sentiment Trend</h5>
+                <p class="text-muted small mb-3">Each coloured line uses the publication dates of NewsAPI articles for one company.</p>
+                <div class="chart-frame"><img src="{{ url_for('static', filename='images/' + graphs.sentiment) }}" alt="Sentiment Trend Graph" class="img-fluid"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card chart-card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <h5 class="fw-bold">Risk Trend</h5>
+                <p class="text-muted small mb-3">Compare the calculated risk index for each company over time.</p>
+                <div class="chart-frame"><img src="{{ url_for('static', filename='images/' + graphs.risk) }}" alt="Risk Trend Graph" class="img-fluid"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card chart-card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <h5 class="fw-bold">Prediction Sureness</h5>
+                <p class="text-muted small mb-3">Compare prediction sureness for each company over time.</p>
+                <div class="chart-frame"><img src="{{ url_for('static', filename='images/' + graphs.sureness) }}" alt="Prediction Sureness Graph" class="img-fluid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card border-0 shadow-sm bg-light py-5 text-center">
+    <div class="card-body">
+        <i class="fa-solid fa-chart-line text-secondary display-4 mb-3"></i>
+        <h4 class="fw-bold mb-2">No Trend Graphs Available</h4>
+        {% if history_count == 0 %}
+            <p class="text-muted mb-0">Run at least two analyses in the app to generate trend graphs.</p>
+        {% else %}
+            <p class="text-muted mb-0">Adjust the selected ticker or date range to display available trend data.</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const allTickers = document.getElementById('all-tickers');
+const tickerChoices = Array.from(document.querySelectorAll('.ticker-choice'));
+const tickerLabel = document.getElementById('ticker-selection-label');
+
+function updateTickerLabel() {
+    const selected = tickerChoices.filter(choice => choice.checked).map(choice => choice.value);
+    allTickers.checked = selected.length === 0;
+    tickerLabel.textContent = selected.length ? selected.join(', ') : 'All ASX Tickers';
+}
+
+allTickers.addEventListener('change', function () {
+    if (this.checked) tickerChoices.forEach(choice => { choice.checked = false; });
+    updateTickerLabel();
+});
+
+tickerChoices.forEach(choice => choice.addEventListener('change', updateTickerLabel));
+</script>
+{% endblock %}

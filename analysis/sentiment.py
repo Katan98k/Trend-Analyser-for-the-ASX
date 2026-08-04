@@ -25,6 +25,7 @@ class SentimentAnalyzer:
     """
 
     def __init__(self):
+        """Set the inclusive bounds used for every sentiment score."""
 
         self.minimum = 0
         self.maximum = 100
@@ -93,6 +94,7 @@ class SentimentAnalyzer:
         return round(score, 2)
 
     def _limit(self, score):
+        """Clamp a calculated score to the supported 0-100 range."""
         # Dynamically references instance variables instead of hardcoding
         return max(self.minimum, min(self.maximum, score))
 

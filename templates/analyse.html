@@ -1,9 +1,14 @@
+{#
+  Trend Analyzer for the ASX - New Analysis Interface
+  Collects the ticker, company name, and notes required to begin news retrieval.
+  Author: Karan Attavar
+#}
 {% extends "base.html" %}
 
 {% block title %}New Analysis | ASX Trend Analyzer{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-4">
+<div class="row justify-content-center mt-2">
     <div class="col-md-8 col-lg-6">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4 p-md-5">
@@ -11,7 +16,8 @@
                     <div class="bg-primary-subtle d-inline-block p-3 rounded-circle mb-3">
                         <i class="fa-solid fa-magnifying-glass-chart text-primary fs-3"></i>
                     </div>
-                    <h2 class="fw-bold text-dark">Analyze ASX Stock</h2>
+                    <div class="small text-uppercase fw-bold text-primary mb-2">Live intelligence</div>
+                    <h1 class="h2 fw-bold text-dark">Analyze ASX Stock</h1>
                     <p class="text-muted">Pull real-time news, calculate sentiment metrics, and generate custom AI reports using Groq.</p>
                 </div>
 

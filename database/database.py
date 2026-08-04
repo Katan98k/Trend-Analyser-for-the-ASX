@@ -3,6 +3,11 @@
 Trend Analyzer for the ASX
 
 SQLite Database Manager
+
+Creates safe SQLite connections, initialises the schema, and
+provides shared query helpers for all application routes.
+
+Author: Karan Attavar
 ---------------------------------------------------------
 """
 

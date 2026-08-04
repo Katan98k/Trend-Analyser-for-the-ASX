@@ -290,4 +290,3 @@ def local_analysis_summary(company_name, ticker, articles, sentiment, risk, sure
         ])
 
     return "\n".join(summary_lines)
-

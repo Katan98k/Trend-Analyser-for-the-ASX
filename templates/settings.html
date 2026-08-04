@@ -1,0 +1,96 @@
+{#
+  Trend Analyzer for the ASX - Application Settings
+  Shows configuration health and provides cache, API, and database maintenance tools.
+  Author: Karan Attavar
+#}
+{% extends "base.html" %}
+
+{% block title %}Settings | ASX Trend Analyzer{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h4 fw-bold mb-3">Application Settings</h2>
+                <p class="text-muted">These settings control the app's configuration, API usage, and database behavior.</p>
+
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0">
+                        <strong>Database path:</strong> {{ config.database_path }}
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong>News API configured:</strong> {{ 'Yes' if config.has_news_key else 'No' }}
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong>Groq API configured:</strong> {{ 'Yes' if config.has_groq_key else 'No' }}
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong>Groq model:</strong> {{ config.groq_model or '(not set)' }}
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong>Groq endpoint:</strong> {{ config.groq_url }}
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong>Cache timeout:</strong> {{ config.cache_timeout }} seconds
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong>Max articles per run:</strong> {{ config.max_articles }}
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong>Stored analysis records:</strong> {{ config.db_record_count }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="h5 fw-bold mb-3">Maintenance</h3>
+                <form action="{{ url_for('settings.clear_cache') }}" method="POST" class="mb-3">
+                    <button type="submit" class="btn btn-outline-secondary w-100">Clear API Cache</button>
+                </form>
+                <button id="groqCheckBtn" type="button" class="btn btn-outline-info w-100 mb-3">Test Groq Connection</button>
+                <div id="groqResult" class="alert d-none" role="alert"></div>
+                <form action="{{ url_for('settings.reset_database') }}" method="POST">
+                    <label for="confirm_reset" class="form-label">Type RESET to confirm</label>
+                    <input type="text" class="form-control mb-3" id="confirm_reset" name="confirm_reset" placeholder="RESET">
+                    <button type="submit" class="btn btn-danger w-100">Reset Database</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('groqCheckBtn').addEventListener('click', function () {
+        const resultBox = document.getElementById('groqResult');
+        resultBox.classList.remove('alert-success', 'alert-danger', 'd-none');
+        resultBox.classList.add('alert-info');
+        resultBox.textContent = 'Checking Groq connection...';
+
+        fetch('{{ url_for('settings.check_groq') }}')
+            .then(response => response.json().then(data => ({ status: response.status, body: data })))
+            .then(({ status, body }) => {
+                if (status === 200 && body.status === 'ok') {
+                    resultBox.classList.remove('alert-info', 'alert-danger');
+                    resultBox.classList.add('alert-success');
+                    resultBox.textContent = 'Groq connection OK: ' + body.message;
+                } else {
+                    resultBox.classList.remove('alert-info', 'alert-success');
+                    resultBox.classList.add('alert-danger');
+                    resultBox.textContent = 'Groq connection failed: ' + (body.message || 'Unknown error');
+                }
+            })
+            .catch(error => {
+                resultBox.classList.remove('alert-info', 'alert-success');
+                resultBox.classList.add('alert-danger');
+                resultBox.textContent = 'Error checking Groq: ' + error.message;
+            });
+    });
+</script>
+{% endblock %}

@@ -3,6 +3,11 @@
 Trend Analyzer for the ASX
 
 Database Models
+
+Defines the in-memory representation of a saved analysis
+record and converts database rows into application objects.
+
+Author: Karan Attavar
 ---------------------------------------------------------
 """
 
@@ -26,6 +31,7 @@ class AnalysisRecord:
         record_id=None,
         created_at=None
     ):
+        """Create a normalised analysis record ready for storage or display."""
 
         self.id = record_id
 
@@ -76,6 +82,7 @@ class AnalysisRecord:
         )
 
     def __repr__(self):
+        """Return a concise representation for debugging and logs."""
 
         return (
             f"<AnalysisRecord "

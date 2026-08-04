@@ -1,0 +1,130 @@
+{#
+  Trend Analyzer for the ASX - Detailed Analysis Report
+  Presents record scores, the AI summary, analyst notes, and historical graphs.
+  Author: Karan Attavar
+#}
+{% extends "base.html" %}
+
+{% block title %}{% if record %}{{ record['ticker'] }} Detailed Analysis{% else %}Trend Visualisation{% endif %} | ASX Trend Analyzer{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-column flex-md-row gap-3">
+        {% if record %}
+            <div>
+                <h1 class="fw-bold mb-1 text-dark">{{ record['company_name'] }} (<span class="text-uppercase">{{ record['ticker'] }}</span>)</h1>
+                <p class="text-muted mb-0">Report Generated on: <strong class="text-dark">{{ record['analysis_date'] }}</strong></p>
+            </div>
+            <div>
+                <span class="badge bg-dark px-3 py-2 fs-6">Run Record #{{ record['id'] }}</span>
+            </div>
+        {% else %}
+            <div>
+                <h1 class="fw-bold mb-1 text-dark">Trend Visualisation</h1>
+                <p class="text-muted mb-0">Historical sentiment, risk, and sureness trend graphs generated from all saved ASX analyses.</p>
+            </div>
+            <div>
+                <a href="{{ url_for('home.home') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if record %}
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card metric-card metric-sentiment border-0 shadow-sm text-center py-3 bg-white">
+            <span class="text-muted small fw-semibold text-uppercase">Overall Sentiment</span>
+            <h2 class="metric-value fw-bold my-2 {% if record['sentiment_score'] >= 60 %}text-success{% elif record['sentiment_score'] >= 40 %}text-warning{% else %}text-danger{% endif %}">
+                {{ record['sentiment_score'] }}/100
+            </h2>
+            <div class="progress mx-4" style="height: 6px;">
+                <div class="progress-bar {% if record['sentiment_score'] >= 60 %}bg-success{% elif record['sentiment_score'] >= 40 %}bg-warning{% else %}bg-danger{% endif %}"
+                     data-progress-width="{{ record['sentiment_score'] }}"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card metric-card metric-risk border-0 shadow-sm text-center py-3 bg-white">
+            <span class="text-muted small fw-semibold text-uppercase">Risk Index</span>
+            <h2 class="metric-value fw-bold my-2 {% if record['risk_score'] >= 60 %}text-danger{% elif record['risk_score'] >= 35 %}text-warning{% else %}text-success{% endif %}">
+                {{ record['risk_score'] }}/100
+            </h2>
+            <div class="progress mx-4" style="height: 6px;">
+                <div class="progress-bar {% if record['risk_score'] >= 60 %}bg-danger{% elif record['risk_score'] >= 35 %}bg-warning{% else %}bg-success{% endif %}"
+                     data-progress-width="{{ record['risk_score'] }}"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card metric-card metric-sureness border-0 shadow-sm text-center py-3 bg-white">
+            <span class="text-muted small fw-semibold text-uppercase">Sureness/Confidence</span>
+            <h2 class="metric-value fw-bold my-2 text-warning">{{ record['sureness_score'] }}%</h2>
+            <div class="progress mx-4" style="height: 6px;">
+                <div class="progress-bar bg-info" data-progress-width="{{ record['sureness_score'] }}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-dark text-white py-3">
+                <h5 class="card-title fw-bold mb-0 d-flex align-items-center">
+                    <i class="fa-solid fa-robot text-info me-2 fs-5"></i> Groq AI Market Intelligence Report
+                </h5>
+            </div>
+            <div class="card-body p-4 bg-white">
+                <div class="lh-base" style="white-space: pre-wrap; font-size: 0.95rem;">
+                    {{ record['ai_summary'] }}
+                </div>
+            </div>
+        </div>
+
+        {% if record['notes'] %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light py-3 border-0">
+                <h6 class="fw-bold mb-0 text-secondary"><i class="fa-solid fa-pen-nib me-1"></i> User Analyst Notes</h6>
+            </div>
+            <div class="card-body bg-white text-dark-50" style="white-space: pre-wrap;">{{ record['notes'] }}</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0 pt-3 pb-0">
+                <h5 class="card-title fw-bold text-dark mb-0"><i class="fa-solid fa-chart-line text-primary me-1"></i> Historical Run Trends</h5>
+                <p class="text-muted small mb-0">Compiled from NewsAPI article publication dates up to this analysis.</p>
+            </div>
+            <div class="card-body text-center p-3">
+                {% if history_count >= 2 and graphs %}
+                    <div class="row g-3">
+                        {% for graph_type, filename in graphs.items() %}
+                            <div class="col-12">
+                                <div class="chart-frame p-2">
+                                    <h6 class="small fw-bold text-secondary text-uppercase mb-2">{{ graph_type }} Trend</h6>
+                                    <img src="{{ url_for('static', filename='images/' + filename) }}" 
+                                         alt="{{ graph_type }} Trend Graph" class="img-fluid">
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 border border-dashed rounded h-100 d-flex flex-column justify-content-center align-items-center bg-light">
+                        <i class="fa-solid fa-chart-bar text-muted display-4 mb-3"></i>
+                        <h6 class="fw-bold">Trends Require Multiple Runs</h6>
+                        <p class="text-muted small px-4 mb-0">At least <strong>two dated NewsAPI articles</strong> are required to render article-based trend graphs for <span class="badge bg-dark font-monospace text-uppercase">{{ record['ticker'] }}</span>.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endif %}
+{% endblock %}

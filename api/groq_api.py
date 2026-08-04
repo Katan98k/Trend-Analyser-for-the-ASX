@@ -1,7 +1,12 @@
 """
 ---------------------------------------------------------
 Trend Analyzer for the ASX
-Groq API Client Implementation
+Groq API Client
+
+Builds authenticated LLM requests, selects supported fallback
+models, and returns clear diagnostic messages on API failure.
+
+Author: Karan Attavar
 ---------------------------------------------------------
 """
 
@@ -11,6 +16,7 @@ from config import Config
 
 
 class GroqClient:
+    """Communicate with Groq's OpenAI-compatible chat completion endpoint."""
 
     DEFAULT_MODELS = [
         "llama-3.3-70b-versatile",
@@ -19,12 +25,14 @@ class GroqClient:
     ]
 
     def __init__(self):
+        """Load API credentials, endpoint, timeout, and preferred model."""
         self.api_key = getattr(Config, "GROQ_API_KEY", "") or getattr(Config, "GROK_API_KEY", "")
         self.base_url = getattr(Config, "GROQ_API_URL", "https://api.groq.com/openai/v1/chat/completions")
         self.timeout = getattr(Config, "TIMEOUT", 15)
         self.model = getattr(Config, "GROQ_MODEL", "") or getattr(Config, "GROK_MODEL", "")
 
     def _build_payload(self, model, system_prompt, user_prompt):
+        """Build the JSON body expected by the Groq chat endpoint."""
         return {
             "model": model,
             "messages": [
@@ -194,4 +202,3 @@ class GroqClient:
         )
 
         return self.send_request(system_prompt, user_prompt)
-      

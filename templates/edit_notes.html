@@ -1,0 +1,37 @@
+{#
+  Trend Analyzer for the ASX - Analyst Notes Editor
+  Lets the user update the personal notes attached to a saved analysis record.
+  Author: Karan Attavar
+#}
+{% extends "base.html" %}
+
+{% block title %}Edit Analyst Notes | ASX Trend Analyzer{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="fw-bold mb-3">Edit Analyst Notes</h2>
+                <p class="text-muted">Update the saved comments for this stock analysis run.</p>
+
+                <form action="{{ url_for('history.edit_notes', record_id=record['id']) }}" method="POST">
+                    <div class="mb-3">
+                        <label for="notes" class="form-label fw-semibold text-secondary">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="6" required>{{ record['notes'] or '' }}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('history.list_history') }}" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-arrow-left me-1"></i> Back to History
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Save Notes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

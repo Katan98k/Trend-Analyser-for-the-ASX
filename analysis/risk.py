@@ -1,8 +1,11 @@
 """
 ---------------------------------------------------------
 Trend Analyzer for the ASX
+Financial Risk Analyzer
 
-Risk analysis using hard coded words.
+Scores ASX news articles using transparent, weighted risk
+terms so each result remains explainable and reproducible.
+
 Author: Karan Attavar
 ---------------------------------------------------------
 """
@@ -14,6 +17,7 @@ class RiskAnalyzer:
     """Score financial risk using weighted ASX-relevant words and phrases."""
 
     def __init__(self):
+        """Configure risk weights, title emphasis, and compiled term patterns."""
         self.maximum_score = 100
         self.title_multiplier = 2.5
 
@@ -128,6 +132,7 @@ class RiskAnalyzer:
 
     @staticmethod
     def _article_text(article, field):
+        """Return a normalised lowercase article field for matching."""
         return (article.get(field) or "").lower()
 
     def _occurrences(self, text, phrase):
@@ -135,6 +140,7 @@ class RiskAnalyzer:
         return len(self._compiled[phrase].findall(text))
 
     def _score_text(self, text, multiplier=1.0):
+        """Calculate the weighted risk contribution of one text segment."""
         score = 0
         for phrase, weight in self.risk_terms.items():
             hits = self._occurrences(text, phrase)

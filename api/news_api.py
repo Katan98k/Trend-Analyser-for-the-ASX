@@ -1,7 +1,12 @@
 """
 ---------------------------------------------------------
 Trend Analyzer for the ASX
-News API Client Implementation
+News API Client
+
+Retrieves current ASX company news, applies company-aware
+search terms, and caches responses to reduce API usage.
+
+Author: Karan Attavar
 ---------------------------------------------------------
 """
 
@@ -11,8 +16,10 @@ from api.cache import api_cache
 
 
 class NewsAPIClient:
+    """Retrieve and filter NewsAPI stories for Australian listed companies."""
 
     def __init__(self):
+        """Load NewsAPI credentials and network settings from configuration."""
         # Fallback to an empty string if config is not loaded properly
         self.api_key = getattr(Config, "NEWS_API_KEY", "")
         self.base_url = "https://newsapi.org/v2/everything"

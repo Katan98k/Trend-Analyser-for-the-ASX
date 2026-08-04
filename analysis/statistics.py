@@ -22,6 +22,7 @@ class StatisticsCalculator:
 
     @staticmethod
     def average_sentiment(records):
+        """Return the mean sentiment score, or zero for an empty collection."""
 
         if not records:
             return 0.0
@@ -42,6 +43,7 @@ class StatisticsCalculator:
 
     @staticmethod
     def average_risk(records):
+        """Return the mean risk score, or zero for an empty collection."""
 
         if not records:
             return 0.0
@@ -62,6 +64,7 @@ class StatisticsCalculator:
 
     @staticmethod
     def average_sureness(records):
+        """Return the mean prediction sureness, or zero when no records exist."""
 
         if not records:
             return 0.0
@@ -82,6 +85,7 @@ class StatisticsCalculator:
 
     @staticmethod
     def highest_sentiment(records):
+        """Return the saved record with the highest sentiment score."""
 
         if not records:
             return None
@@ -96,6 +100,7 @@ class StatisticsCalculator:
 
     @staticmethod
     def highest_risk(records):
+        """Return the saved record with the highest calculated risk score."""
 
         if not records:
             return None
@@ -110,6 +115,7 @@ class StatisticsCalculator:
 
     @staticmethod
     def lowest_risk(records):
+        """Return the saved record with the lowest calculated risk score."""
 
         if not records:
             return None
