@@ -1,1 +1,73 @@
+SOFTWARE DEVELOPMENT FIX SUMMARY
+================================
 
+Project: Trend Analyser for the ASX
+Developer: Karan Attavar
+Baseline: 8271d92 - "The base"
+Current release: b99294f - "Complete analysis workflow and mockup-aligned interface"
+
+| ID | System area | Initial prototype limitation | Fix or improvement implemented | Status |
+|---|---|---|---|---|
+| DEV-01 | Application structure | Repository contained only app.py, which referenced missing modules and could not run | Added the complete modular Flask project structure | Complete |
+| DEV-02 | Dependencies | Required Python packages were not documented | Added requirements.txt containing the application dependencies | Complete |
+| DEV-03 | Configuration | Application settings and API credentials were not centrally managed | Added config.py, environment-variable loading and .env.example | Complete |
+| DEV-04 | Security | Secret keys and generated files could accidentally be uploaded | Expanded .gitignore to exclude .env, databases, virtual environments, caches, generated graphs and planning files | Complete |
+| DEV-05 | Routing | Flask routes referenced by the application did not exist | Added separate blueprints for home, analysis, history, trends, AI and settings | Complete |
+| DEV-06 | Homepage | No working user entry point existed | Created the dashboard route and homepage interface | Complete |
+| DEV-07 | News retrieval | The prototype could not retrieve current financial news | Added a NewsAPI client with ticker, company and date searching | Complete |
+| DEV-08 | Article relevance | Search results could contain unrelated articles | Added ASX-specific query construction and article relevance filtering | Complete |
+| DEV-09 | API efficiency | Repeated searches could unnecessarily call external APIs | Added a thread-safe cache with expiry control | Complete |
+| DEV-10 | Article selection | Users could not check evidence before processing it | Added a temporary selection workflow allowing users to choose articles | Complete |
+| DEV-11 | Sentiment analysis | No working sentiment-scoring system was available | Added a dedicated sentiment analyser and combined article scoring | Complete |
+| DEV-12 | Risk analysis | Financial risk was not independently measured | Added a risk analyser based on financial-risk terminology and context | Complete |
+| DEV-13 | Sureness calculation | Users could not judge confidence in a result | Added a sureness score based on analysis strength and available evidence | Complete |
+| DEV-14 | Trustworthiness | News sources were not evaluated for reliability | Added trustworthiness scoring based on source, author, content and article quality | Complete |
+| DEV-15 | Statistics | Results could not be meaningfully summarised | Added reusable statistical calculations for stored analyses | Complete |
+| DEV-16 | Database | No working persistence layer existed | Added SQLite connection, initialisation and query-management functions | Complete |
+| DEV-17 | Database schema | No tables existed for application data | Added tables for analyses, articles, AI conversations and AI messages | Complete |
+| DEV-18 | Schema compatibility | New fields could break databases created by older versions | Added lightweight schema migration handling for new score columns | Complete |
+| DEV-19 | Saved history | Previous analyses could not be revisited | Added a saved-analysis history system | Complete |
+| DEV-20 | History filtering | Users could not efficiently locate saved records | Added ticker, company and date-range searching | Complete |
+| DEV-21 | Record management | Saved results could not be maintained | Added individual deletion, bulk deletion and editable notes | Complete |
+| DEV-22 | Detailed reports | Results lacked a complete report view | Added individual reports containing scores, summaries and metadata | Complete |
+| DEV-23 | Evidence records | Supporting articles were not clearly connected to results | Stored articles against their analysis record and added an evidence page | Complete |
+| DEV-24 | Trend visualisation | No historical graphs were available | Added Matplotlib graphs for sentiment, risk and sureness | Complete |
+| DEV-25 | Graph filtering | Users could not focus graphs on particular data | Added ticker and date-range filtering | Complete |
+| DEV-26 | Graph design | Default graphs did not match the planned interface | Added dark backgrounds, neon data lines, fills, legends and formatted axes | Complete |
+| DEV-27 | AI assistant | The AI page was missing or returned a placeholder response | Built the complete Katan AI assistant using Groq | Complete |
+| DEV-28 | AI conversations | AI messages were not retained | Added stored conversations, message history, new chats and conversation deletion | Complete |
+| DEV-29 | Database-aware AI | AI could not explain the user's saved information | Added relevant saved-analysis context to AI requests | Complete |
+| DEV-30 | AI citations | AI answers lacked supporting evidence | Added citations using relevant stored news articles | Complete |
+| DEV-31 | AI reliability | AI became unusable when the external model failed | Added alternative-model attempts and local fallback responses | Complete |
+| DEV-32 | Settings | No maintenance or diagnostic controls existed | Added Groq testing, cache clearing, configuration display and database reset controls | Complete |
+| DEV-33 | Dashboard | The interface displayed little useful information | Added statistics, recent results, navigation and quick actions | Complete |
+| DEV-34 | Interface design | Original pages were plain and visually inconsistent | Rebuilt the interface around the dark ASX mood boards | Complete |
+| DEV-35 | Shared layout | Every page used inconsistent structure and styling | Added a shared base template, sidebar, header and design system | Complete |
+| DEV-36 | Responsive design | Layout did not adapt to smaller screens | Added responsive styling and collapsible mobile navigation | Complete |
+| DEV-37 | User feedback | Errors, empty results and successful actions were unclear | Added alerts, validation messages, empty states and exception handling | Complete |
+| DEV-38 | Financial safety | Financial-advice limitations were not consistently communicated | Added a shared financial disclaimer across the application | Complete |
+| DEV-39 | Utilities | Formatting and validation logic was repeated or missing | Added shared formatting helpers and reusable ticker/company validation functions | Foundation complete |
+| DEV-40 | Runtime validation | Validation utilities are not yet called by every input route | Full route-level integration remains for the final submission | Partial |
+| DEV-41 | Documentation | Code lacked consistent explanations and ownership information | Added file introductions, comments, docstrings and Author: Karan Attavar headers | Complete |
+| DEV-42 | Version control | Project files were manually uploaded and not linked to GitHub | Connected the local project to the GitHub repository and established normal commit/push tracking | Complete |
+| DEV-43 | Repository quality | Duplicate, temporary or sensitive files could have entered the repository | Audited tracked paths and confirmed no duplicate paths, databases, environments or secret files | Complete |
+| DEV-44 | System verification | The prototype had no demonstrated end-to-end stability | Verified Python parsing, Jinja rendering, desktop/mobile layouts and six main Flask routes returning HTTP 200 | Complete |
+
+
+DEVELOPMENT RESULT
+==================
+
+| Metric | Initial prototype | Polished application release (b99294f) |
+|---|---:|---:|
+| Commits through application release | 1 | 41 |
+| Tracked files | 1 | 39 |
+| Main routes | 0 working as uploaded | 6 working route groups |
+| Database tables | 0 | 4 |
+| External integrations | 0 working | NewsAPI and Groq |
+| Interface | Non-running prototype | Complete dark-themed responsive application |
+| Overall code change | - | 5,844 additions and 3 deletions |
+
+Overall outcome:
+The project progressed from a non-running, single-file prototype into a modular,
+database-backed ASX analysis application with news retrieval, scoring, saved
+history, graphs, AI assistance, error handling and a polished interface.
