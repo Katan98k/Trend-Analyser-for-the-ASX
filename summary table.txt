@@ -1,5 +1,11 @@
 SOFTWARE DEVELOPMENT FIX SUMMARY
-================================
+=====================================
+
+-------------------------------------
+MAY INCLUDE EDITS NOT PUSHED ONTO GIT
+-------------------------------------
+
+=====================================
 
 Project: Trend Analyser for the ASX
 Developer: Karan Attavar
