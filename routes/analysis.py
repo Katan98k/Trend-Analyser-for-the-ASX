@@ -12,6 +12,7 @@ Author: Karan Attavar
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from datetime import datetime
+import os
 from uuid import uuid4
 
 # Database Connection and Models
@@ -103,6 +104,10 @@ def run_analysis():
             if 0 <= index < len(pending["articles"])
         ]
         article_count = len(articles)
+        # Criterion 8 evidence hook: active only in the dedicated VS Code
+        # "Criterion 8 Breakpoint Capture" configuration.
+        if os.getenv("CRIT8_CAPTURE_BREAKPOINTS") == "1":
+            breakpoint()
         if not articles:
             flash("Select at least one article to run an analysis.", "warning")
             return render_template(

@@ -11,6 +11,8 @@ Author: Karan Attavar
 ---------------------------------------------------------
 """
 
+import os
+
 
 class SurenessAnalyzer:
     """Calculates the confidence (sureness) of an analysis."""
@@ -72,4 +74,8 @@ class SurenessAnalyzer:
             elif article_count >= 10:
                 sureness = min(100, sureness * 1.05)
 
+        # Criterion 8 evidence hook: active only in the dedicated VS Code
+        # "Criterion 8 Breakpoint Capture" configuration.
+        if os.getenv("CRIT8_CAPTURE_BREAKPOINTS") == "1":
+            breakpoint()
         return self._clamp(sureness)

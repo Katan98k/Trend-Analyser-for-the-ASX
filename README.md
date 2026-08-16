@@ -205,6 +205,24 @@ TrendAnalyzer/
 5. Results are saved to the SQLite database.
 6. Historical statistics and trend graphs are generated.
 7. Users can review previous analyses or ask AI questions based on stored data.
+```
+
+---
+
+## Automated Criterion 8 Module Tests
+
+The repeatable white-box tests for T28-T34 are stored in
+`tests/test_criterion8_modules.py`. They call the application's real analysis
+classes with controlled article inputs, keeping the results independent of
+live NewsAPI and Groq data.
+
+Run them from the project folder with:
+
+```powershell
+python -m unittest tests.test_criterion8_modules -v
+```
+
+See `tests/README.md` for the purpose and expected behaviour of each test ID.
 
 ---
 
