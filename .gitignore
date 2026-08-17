@@ -12,6 +12,7 @@ build/
 
 # Environment & secrets
 .env
+Alpha testing/
 
 # Local runtime data
 database/*.db
