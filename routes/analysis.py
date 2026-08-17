@@ -116,7 +116,8 @@ def run_analysis():
                 company_name=company_name,
                 notes=notes,
                 articles=pending["articles"],
-                selection_token=request.form.get("selection_token", "")
+                selection_token=request.form.get("selection_token", ""),
+                selected_indexes=selected_indexes
             )
 
         # 2. Run Analytics Engines

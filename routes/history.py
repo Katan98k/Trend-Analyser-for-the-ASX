@@ -163,6 +163,19 @@ def view_record(record_id):
 @history_bp.route("/articles/<int:record_id>")
 def view_articles(record_id):
     """Show every article selected for one saved analysis record."""
+    raw_return_to = request.args.get("return_to", "report").strip().lower()
+    allowed_return_targets = {
+        "report": url_for("history.view_record", record_id=record_id),
+        "history": url_for("history.list_history"),
+        "dashboard": url_for("home.home")
+    }
+    return_url = allowed_return_targets.get(raw_return_to, allowed_return_targets["report"])
+    return_label = {
+        "report": "Back to Report",
+        "history": "Back to History",
+        "dashboard": "Back to Dashboard"
+    }.get(raw_return_to, "Back to Report")
+
     record = fetch_one("SELECT * FROM analysis_records WHERE id = ?", (record_id,))
     if not record:
         flash("The requested analysis record could not be found.", "danger")
@@ -172,7 +185,13 @@ def view_articles(record_id):
         "SELECT * FROM analysis_articles WHERE analysis_record_id = ? ORDER BY published_at DESC",
         (record_id,)
     )
-    return render_template("articles.html", record=record, articles=articles)
+    return render_template(
+        "articles.html",
+        record=record,
+        articles=articles,
+        return_url=return_url,
+        return_label=return_label
+    )
 
 
 @history_bp.route("/delete/<int:record_id>", methods=["POST"])

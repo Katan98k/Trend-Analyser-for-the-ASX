@@ -30,7 +30,8 @@
                         {% for article in articles %}
                         <label class="list-group-item list-group-item-action py-3">
                             <div class="d-flex gap-3">
-                                <input class="form-check-input mt-1 article-checkbox" type="checkbox" name="article_indexes" value="{{ loop.index0 }}" checked>
+                                <input class="form-check-input mt-1 article-checkbox" type="checkbox" name="article_indexes" value="{{ loop.index0 }}"
+                                       {% if selected_indexes is not defined or loop.index0 in selected_indexes %}checked{% endif %}>
                                 <div class="flex-grow-1">
                                     <strong>{{ article.title or 'Untitled article' }}</strong>
                                     <div class="small text-muted mt-1">Published: {{ article.publishedAt or 'Date unavailable' }}</div>

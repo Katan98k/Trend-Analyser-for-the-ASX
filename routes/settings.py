@@ -68,10 +68,10 @@ def check_groq():
     from api.groq_api import GroqClient
 
     client = GroqClient()
-    success, message = client.test_connection()
-    if success:
-        return jsonify({"status": "ok", "message": message})
-    return jsonify({"status": "error", "message": message}), 400
+    result = client.test_connection()
+    if result["success"]:
+        return jsonify({"status": "ok", **result})
+    return jsonify({"status": "error", **result}), 400
 
 
 @settings_bp.route("/clear-cache", methods=["POST"])

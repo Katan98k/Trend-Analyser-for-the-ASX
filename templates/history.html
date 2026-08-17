@@ -125,8 +125,11 @@
                                     <a href="{{ url_for('history.view_record', record_id=r.id) }}" class="btn btn-sm btn-outline-primary">
                                         <i class="fa-solid fa-chart-line"></i> View
                                     </a>
-                                    <a href="{{ url_for('history.edit_notes', record_id=r.id) }}" class="btn btn-sm btn-outline-secondary">
-                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    <a href="{{ url_for('history.edit_notes', record_id=r.id) }}" class="btn btn-sm btn-outline-secondary" title="Edit notes" aria-label="Edit notes for {{ r.ticker }}">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i> Edit notes
+                                    </a>
+                                    <a href="{{ url_for('history.view_articles', record_id=r.id, return_to='history') }}" class="btn btn-sm btn-outline-secondary" title="Read selected articles">
+                                        <i class="fa-solid fa-newspaper me-1"></i> Articles
                                     </a>
                                     <form action="{{ url_for('history.delete_record', record_id=r.id) }}" method="POST" 
                                           onsubmit="return confirm('Are you sure you want to permanently delete this analysis record for {{ r.ticker }}? This action cannot be undone.');">

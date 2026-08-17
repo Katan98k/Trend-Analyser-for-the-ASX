@@ -67,6 +67,15 @@
 
 {% block scripts %}
 <script>
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
     document.getElementById('groqCheckBtn').addEventListener('click', function () {
         const resultBox = document.getElementById('groqResult');
         resultBox.classList.remove('alert-success', 'alert-danger', 'd-none');
@@ -79,17 +88,30 @@
                 if (status === 200 && body.status === 'ok') {
                     resultBox.classList.remove('alert-info', 'alert-danger');
                     resultBox.classList.add('alert-success');
-                    resultBox.textContent = 'Groq connection OK: ' + body.message;
+                    resultBox.innerHTML = `
+                        <strong>${escapeHtml(body.title || 'Groq connection online')}</strong><br>
+                        ${escapeHtml(body.message || 'Groq responded successfully.')}<br>
+                        <span class="small">${escapeHtml(body.action || 'No action required.')}</span>
+                    `;
                 } else {
                     resultBox.classList.remove('alert-info', 'alert-success');
                     resultBox.classList.add('alert-danger');
-                    resultBox.textContent = 'Groq connection failed: ' + (body.message || 'Unknown error');
+                    resultBox.innerHTML = `
+                        <strong>${escapeHtml(body.title || 'Groq connection failed')}</strong><br>
+                        ${escapeHtml(body.message || 'Unknown error')}<br>
+                        <span class="small">${escapeHtml(body.action || 'Check the Groq API settings and try again.')}</span>
+                        ${body.fallback_available ? '<hr class="my-2"><span class="small fw-semibold">Fallback: Katan can still use the local fallback response while Groq is unavailable.</span>' : ''}
+                    `;
                 }
             })
             .catch(error => {
                 resultBox.classList.remove('alert-info', 'alert-success');
                 resultBox.classList.add('alert-danger');
-                resultBox.textContent = 'Error checking Groq: ' + error.message;
+                resultBox.innerHTML = `
+                    <strong>Could not run the Groq test</strong><br>
+                    ${escapeHtml(error.message)}<br>
+                    <span class="small">Check that the Flask app is still running, then try again.</span>
+                `;
             });
     });
 </script>

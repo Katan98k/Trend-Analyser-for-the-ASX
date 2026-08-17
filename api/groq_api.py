@@ -124,26 +124,140 @@ class GroqClient:
             fallback_message += f"\nLast error: {last_error_text}"
         return fallback_message
 
+    def _diagnostic_result(self, success, state, title, message, action, fallback_available=True):
+        """Return a consistent, user-facing diagnostic response for Settings."""
+        return {
+            "success": success,
+            "state": state,
+            "title": title,
+            "message": message,
+            "action": action,
+            "fallback_available": fallback_available
+        }
+
     def test_connection(self):
         """Run a short diagnostic request against Groq to verify connectivity."""
-        result = self.send_request(
-            "You are a diagnostic assistant. Reply with the word 'online'.",
-            "Ping"
+        if not self.api_key:
+            return self._diagnostic_result(
+                False,
+                "missing_key",
+                "Groq API key is missing",
+                "Katan can still use the local fallback, but Groq-generated answers are unavailable until an API key is added.",
+                "Add GROQ_API_KEY to the .env file, then restart the app and test again."
+            )
+
+        models_to_try = []
+        if self.model:
+            models_to_try.append(self.model)
+        for fallback in self.DEFAULT_MODELS:
+            if fallback not in models_to_try:
+                models_to_try.append(fallback)
+
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+
+        last_error = ""
+        for model_name in models_to_try:
+            payload = self._build_payload(
+                model_name,
+                "You are a diagnostic assistant. Reply with the word 'online'.",
+                "Ping"
+            )
+            try:
+                response = requests.post(
+                    self.base_url,
+                    headers=headers,
+                    json=payload,
+                    timeout=self.timeout
+                )
+                response.raise_for_status()
+                data = response.json()
+                answer = data["choices"][0]["message"]["content"].strip()
+                return self._diagnostic_result(
+                    True,
+                    "online",
+                    "Groq connection online",
+                    f"Groq responded successfully using model {model_name}. Response: {answer}",
+                    "No action required.",
+                    fallback_available=True
+                )
+            except requests.exceptions.Timeout as e:
+                last_error = str(e)
+                return self._diagnostic_result(
+                    False,
+                    "timeout",
+                    "Groq connection timed out",
+                    "The app reached Groq but did not receive a response before the timeout.",
+                    "Check your internet connection and try again. Katan can still use the local fallback while Groq is unavailable."
+                )
+            except requests.exceptions.ConnectionError as e:
+                last_error = str(e)
+                return self._diagnostic_result(
+                    False,
+                    "network_error",
+                    "Groq network connection failed",
+                    "The app could not reach the Groq API endpoint.",
+                    "Check internet access, school/home network blocking, and the Groq endpoint setting. Katan can still use the local fallback."
+                )
+            except requests.exceptions.HTTPError:
+                error_text = response.text
+                try:
+                    error_data = response.json()
+                    error_text = (
+                        error_data.get("error", {}).get("message")
+                        if isinstance(error_data.get("error"), dict)
+                        else error_data.get("error")
+                    ) or error_data.get("message") or error_data.get("detail") or response.text
+                except ValueError:
+                    pass
+
+                normalized = (error_text or "").lower()
+                last_error = error_text
+                print(f"[Groq Diagnostic HTTPError] model={model_name} {response.status_code} - {error_text}")
+
+                if response.status_code in (401, 403) or any(
+                    signal in normalized for signal in ["incorrect api key", "invalid api key", "unauthorized"]
+                ):
+                    return self._diagnostic_result(
+                        False,
+                        "auth_error",
+                        "Groq authentication failed",
+                        "The configured Groq API key was rejected.",
+                        "Check GROQ_API_KEY in .env and make sure the key is active. Katan can still use the local fallback."
+                    )
+
+                if "model not found" in normalized or "model not supported" in normalized:
+                    continue
+
+                return self._diagnostic_result(
+                    False,
+                    "api_error",
+                    "Groq returned an API error",
+                    error_text or "Groq rejected the diagnostic request.",
+                    "Check the Groq endpoint, model, account status and API limits. Katan can still use the local fallback."
+                )
+            except (KeyError, ValueError) as e:
+                last_error = str(e)
+                return self._diagnostic_result(
+                    False,
+                    "bad_response",
+                    "Groq returned an unexpected response",
+                    "The API replied, but the app could not read the expected response format.",
+                    "Try again later or check whether the Groq API response format has changed."
+                )
+            except requests.exceptions.RequestException as e:
+                last_error = str(e)
+                print(f"[Groq Diagnostic Error] model={model_name} Failed API communication: {e}")
+
+        return self._diagnostic_result(
+            False,
+            "model_error",
+            "No supported Groq model responded",
+            f"The app tried the configured/fallback models but none completed successfully. Last error: {last_error}",
+            "Update GROQ_MODEL in .env to a currently supported Groq chat model. Katan can still use the local fallback."
         )
-        if isinstance(result, str):
-            normalized = result.lower()
-            if any(err in normalized for err in [
-                "invalid api key",
-                "incorrect api key",
-                "unauthorized",
-                "could not produce a response",
-                "groq api key appears to be invalid",
-                "model not found",
-                "model not supported",
-                "error occurred"
-            ]):
-                return False, result
-        return True, result
 
     def summarise_records(self, records):
         """

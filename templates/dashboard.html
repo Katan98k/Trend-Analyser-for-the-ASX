@@ -156,7 +156,7 @@
                                     <a href="{{ url_for('history.view_record', record_id=r.id) }}" class="btn btn-sm btn-outline-primary me-1" title="View Detailed Report">
                                         <i class="fa-solid fa-chart-line"></i> View
                                     </a>
-                                    <a href="{{ url_for('history.view_articles', record_id=r.id) }}" class="btn btn-sm btn-outline-secondary" title="Read Selected Articles">
+                                    <a href="{{ url_for('history.view_articles', record_id=r.id, return_to='dashboard') }}" class="btn btn-sm btn-outline-secondary" title="Read Selected Articles">
                                         <i class="fa-solid fa-newspaper"></i> Articles
                                     </a>
                                 </td>

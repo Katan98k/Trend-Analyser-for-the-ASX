@@ -13,7 +13,9 @@
         <h1 class="h2 fw-bold mb-1">Selected News Articles</h1>
         <p class="text-muted mb-0">{{ record.company_name }} ({{ record.ticker }}) · Analysis run {{ record.analysis_date }}</p>
     </div>
-    <a href="{{ url_for('history.view_record', record_id=record.id) }}" class="btn btn-outline-secondary">Back to Report</a>
+    <a href="{{ return_url or url_for('history.view_record', record_id=record.id) }}" class="btn btn-outline-secondary">
+        {{ return_label or 'Back to Report' }}
+    </a>
 </div>
 
 <div class="alert alert-info">
