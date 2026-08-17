@@ -67,7 +67,7 @@ def conversation_context(conversation_id, limit=6):
 def is_groq_error_response(ai_response):
     """Recognise diagnostic text returned when Groq cannot answer normally."""
     if not isinstance(ai_response, str):
-        return False
+        return True
 
     normalized = ai_response.lower()
     error_signals = [
@@ -78,7 +78,14 @@ def is_groq_error_response(ai_response):
         "groq ai could not",
         "unable to connect to groq",
         "an error occurred while connecting to groq",
-        "groq ai could not find"
+        "groq ai could not find",
+        "could not produce a response",
+        "model not found",
+        "model not supported",
+        "model does not exist",
+        "has been decommissioned",
+        "no longer supported",
+        "unexpected groq response"
     ]
     return any(signal in normalized for signal in error_signals)
 
@@ -152,24 +159,13 @@ def ai_query():
 
         if records and not is_saved_data_question(user_question, records):
             if groq_client.api_key:
-                ai_response = groq_client.send_request(
-                    "You are Katan, a friendly professional ASX specialist. Respond naturally without mentioning saved data, records, sources, or citations unless the user asks about them. Do not provide financial advice.",
-                    conversation_context(conversation_id) + user_question
-                )
-                if is_groq_error_response(ai_response):
-                    ai_response = general_katan_response(user_question)
-            else:
-                ai_response = general_katan_response(user_question)
-            save_message(conversation_id, "user", user_question)
-            save_message(conversation_id, "assistant", ai_response)
-            return redirect(url_for("ai.ai_query", conversation_id=conversation_id))
-
-        if records and not is_saved_data_question(user_question, records):
-            if groq_client.api_key:
-                ai_response = groq_client.send_request(
-                    "You are Katan, a friendly professional ASX specialist. Respond naturally to the user without mentioning saved data, records, sources, or citations unless the user asks about them. Do not provide financial advice.",
-                    conversation_context(conversation_id) + user_question
-                )
+                try:
+                    ai_response = groq_client.send_request(
+                        "You are Katan, a friendly professional ASX specialist. Respond naturally without mentioning saved data, records, sources, or citations unless the user asks about them. Do not provide financial advice.",
+                        conversation_context(conversation_id) + user_question
+                    )
+                except Exception:
+                    ai_response = None
                 if is_groq_error_response(ai_response):
                     ai_response = general_katan_response(user_question)
             else:
@@ -232,14 +228,13 @@ def ai_query():
                 user_query=conversation_context(conversation_id) + "Current question: " + user_question,
                 database_context=database_summary_context
             )
-        except Exception as e:
-            ai_response = f"An error occurred while getting a response from Groq: {e}"
+        except Exception:
+            ai_response = None
 
-        normalized = ai_response.lower()
-        if "error occurred" in normalized or "could not find a valid model" in normalized or "model is not configured" in normalized:
+        if is_groq_error_response(ai_response):
             ai_response = local_ai_fallback(user_question, records, show_model_hint=True)
-
-        ai_response = add_article_citations(ai_response, user_question, records)
+        else:
+            ai_response = add_article_citations(ai_response, user_question, records)
 
         save_message(conversation_id, "user", user_question)
         save_message(conversation_id, "assistant", ai_response)
@@ -421,7 +416,7 @@ def local_ai_fallback(user_question, records, show_model_hint=False):
             f"- Average risk: {avg_risk}/100\n"
             f"- Average sureness: {avg_sureness}/100"
         )
-    elif any(term in question_text for term in ["trend", "summary", "overview", "analysis"]):
+    elif any(term in question_text for term in ["trend", "summary", "overview", "analysis", "analyse", "article"]):
         low_record, low_tickers = best_tickers_by("risk_score", min)
         high_record, high_tickers = best_tickers_by("sentiment_score", max)
         answer_lines.append(
@@ -439,8 +434,7 @@ def local_ai_fallback(user_question, records, show_model_hint=False):
     answer_lines.append("")
     if show_model_hint:
         answer_lines.append(
-            "I'm answering from the records I have locally right now. "
-            "If you want richer AI-style analysis later, make sure GROQ_MODEL is valid in .env."
+            "I'm answering from the records I have locally while Groq reconnects."
         )
     else:
         answer_lines.append(
@@ -476,10 +470,13 @@ def ai_chat_api():
     records = fetch_all("SELECT * FROM analysis_records ORDER BY analysis_date DESC")
     if records and not is_saved_data_question(user_question, records):
         if groq_client.api_key:
-            ai_response = groq_client.send_request(
-                "You are Katan, a friendly professional ASX specialist. Respond naturally without mentioning saved data, records, sources, or citations unless the user asks about them. Do not provide financial advice.",
-                conversation_context(conversation_id) + user_question
-            )
+            try:
+                ai_response = groq_client.send_request(
+                    "You are Katan, a friendly professional ASX specialist. Respond naturally without mentioning saved data, records, sources, or citations unless the user asks about them. Do not provide financial advice.",
+                    conversation_context(conversation_id) + user_question
+                )
+            except Exception:
+                ai_response = None
             if is_groq_error_response(ai_response):
                 ai_response = general_katan_response(user_question)
         else:
@@ -496,8 +493,8 @@ def ai_chat_api():
                     "Be clear, composed, and helpful. Do not use slang, hype, or provide financial advice.",
                     conversation_context(conversation_id) + user_question
                 )
-            except Exception as e:
-                ai_response = f"An error occurred while getting a response from Groq: {e}"
+            except Exception:
+                ai_response = None
 
             if is_groq_error_response(ai_response):
                 ai_response = local_ai_fallback(user_question, records)
@@ -528,9 +525,14 @@ def ai_chat_api():
             conversation_context(conversation_id) + "Current question: " + user_question,
             database_context
         )
+    except Exception:
+        ai_response = None
+
+    if is_groq_error_response(ai_response):
+        ai_response = local_ai_fallback(user_question, records, show_model_hint=True)
+    else:
         ai_response = add_article_citations(ai_response, user_question, records)
-        save_message(conversation_id, "user", user_question)
-        save_message(conversation_id, "assistant", ai_response)
-        return jsonify({"response": ai_response, "conversation_id": conversation_id})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+
+    save_message(conversation_id, "user", user_question)
+    save_message(conversation_id, "assistant", ai_response)
+    return jsonify({"response": ai_response, "conversation_id": conversation_id})

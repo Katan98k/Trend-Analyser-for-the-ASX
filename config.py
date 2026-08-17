@@ -80,7 +80,13 @@ class Config:
     NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 
     GROQ_API_KEY = os.getenv("GROQ_API_KEY") or os.getenv("GROK_API_KEY")
-    GROQ_MODEL = os.getenv("GROQ_MODEL") or os.getenv("GROK_MODEL", "")
+    # Groq retired the earlier Llama defaults in August 2026. Use a current
+    # text model automatically while still allowing .env to override it.
+    GROQ_MODEL = (
+        os.getenv("GROQ_MODEL")
+        or os.getenv("GROK_MODEL")
+        or "openai/gpt-oss-20b"
+    )
 
     # -------------------------------------------------
     # API URLs

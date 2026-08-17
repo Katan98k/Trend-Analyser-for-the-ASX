@@ -101,9 +101,20 @@ class RiskAnalyzer:
             "share slump": 18,
             "sell-off": 18,
             "market selloff": 18,
+            "crashed": 22,
+            "collapse": 24,
             "price plunge": 25,
             "stock plunge": 25,
             "bear market": 15,
+
+            # Governance and investor-confidence events. These occur often
+            # in company reporting but were previously missed, producing a
+            # misleading zero-risk score for clearly adverse stories.
+            "scandal": 30,
+            "governance crisis": 25,
+            "legal scrutiny": 22,
+            "beaten down": 12,
+            "difficult period": 10,
 
             # Economic risks
             "recession": 12,

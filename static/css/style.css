@@ -597,6 +597,32 @@ h1, h2, h3, h4, h5, h6 {
     transition: background 140ms ease;
 }
 
+.dashboard-table-scroll {
+    max-width: 100%;
+    overscroll-behavior-inline: contain;
+}
+
+.dashboard-table-scroll .table {
+    min-width: 1060px;
+}
+
+.dashboard-table-scroll th,
+.dashboard-table-scroll td {
+    white-space: nowrap;
+}
+
+.dashboard-company {
+    max-width: 190px;
+}
+
+.sentiment-badge {
+    min-width: 132px;
+}
+
+.dashboard-actions {
+    min-width: 176px;
+}
+
 .list-group-item {
     border-color: var(--asx-border);
     background: transparent;

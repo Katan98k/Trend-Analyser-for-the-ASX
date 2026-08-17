@@ -94,7 +94,12 @@ class TrustworthinessAnalyzer:
 
     def calculate(self, article):
         """Return a 0-100 reliability score from source and content signals."""
-        source_name = (article.get("source") or {}).get("name", "").lower()
+        source = article.get("source")
+        source_name = (
+            source.get("name", "")
+            if isinstance(source, dict)
+            else ""
+        ).lower()
         url = article.get("url") or ""
         domain = urlparse(url).netloc.lower()
         if domain.startswith("www."):

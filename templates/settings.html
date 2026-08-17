@@ -23,10 +23,13 @@
                         <strong>News API configured:</strong> {{ 'Yes' if config.has_news_key else 'No' }}
                     </li>
                     <li class="list-group-item px-0">
+                        <strong>AI provider:</strong> {{ config.ai_provider }}
+                    </li>
+                    <li class="list-group-item px-0">
                         <strong>Groq API configured:</strong> {{ 'Yes' if config.has_groq_key else 'No' }}
                     </li>
                     <li class="list-group-item px-0">
-                        <strong>Groq model:</strong> {{ config.groq_model or '(not set)' }}
+                        <strong>Active model:</strong> {{ config.groq_model_display or '(not set)' }}
                     </li>
                     <li class="list-group-item px-0">
                         <strong>Groq endpoint:</strong> {{ config.groq_url }}

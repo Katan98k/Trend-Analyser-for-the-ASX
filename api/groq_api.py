@@ -19,9 +19,9 @@ class GroqClient:
     """Communicate with Groq's OpenAI-compatible chat completion endpoint."""
 
     DEFAULT_MODELS = [
-        "llama-3.3-70b-versatile",
-        "llama-3.1-8b-instant",
-        "mixtral-8x7b-32768"
+        "openai/gpt-oss-20b",
+        "qwen/qwen3.6-27b",
+        "openai/gpt-oss-120b"
     ]
 
     def __init__(self):
@@ -42,6 +42,46 @@ class GroqClient:
             "temperature": 0.3,
             "max_tokens": 800
         }
+
+    @staticmethod
+    def _response_error_text(response):
+        """Return a readable error message from either Groq error shape."""
+        fallback_text = str(getattr(response, "text", "") or "")
+
+        try:
+            error_data = response.json()
+        except ValueError:
+            return fallback_text
+
+        if not isinstance(error_data, dict):
+            return fallback_text
+
+        error = error_data.get("error")
+        if isinstance(error, dict):
+            error = (
+                error.get("message")
+                or error.get("detail")
+                or error.get("code")
+            )
+
+        return str(
+            error
+            or error_data.get("message")
+            or error_data.get("detail")
+            or fallback_text
+        )
+
+    @staticmethod
+    def _is_model_unavailable(error_text):
+        """Return whether Groq rejected a model that can be replaced."""
+        normalized = (error_text or "").lower()
+        return any(signal in normalized for signal in [
+            "model not found",
+            "model not supported",
+            "model does not exist",
+            "has been decommissioned",
+            "no longer supported"
+        ])
 
     def send_request(self, system_prompt, user_prompt):
         """
@@ -77,22 +117,17 @@ class GroqClient:
                 )
                 response.raise_for_status()
                 data = response.json()
-                return data["choices"][0]["message"]["content"]
+                content = data["choices"][0]["message"]["content"]
+                if not isinstance(content, str) or not content.strip():
+                    raise ValueError("Groq returned an empty completion")
+                return content.strip()
             except requests.exceptions.HTTPError as e:
-                error_text = ""
                 status = None
                 if response is not None:
                     status = getattr(response, "status_code", None)
-                    try:
-                        error_data = response.json()
-                        error_text = (
-                            error_data.get("error") or
-                            error_data.get("message") or
-                            error_data.get("detail") or
-                            response.text
-                        )
-                    except ValueError:
-                        error_text = response.text
+                    error_text = self._response_error_text(response)
+                else:
+                    error_text = str(e)
 
                 normalized = (error_text or "").lower()
                 print(f"[GroqClient HTTPError] model={model_name} {e} - {error_text}")
@@ -103,11 +138,18 @@ class GroqClient:
                         "Please verify your GROQ_API_KEY in .env and that the key has access to the requested model."
                     )
 
-                if status == 400 and ("model not found" in normalized or "model not supported" in normalized):
+                if status == 400 and self._is_model_unavailable(normalized):
                     last_error_text = error_text
                     continue
 
                 last_error_text = error_text
+                continue
+            except (KeyError, IndexError, TypeError, ValueError) as e:
+                # A successful HTTP status can still contain an unexpected
+                # body. Treat it like an unavailable model rather than
+                # allowing the analysis route to fail with a 500 error.
+                last_error_text = f"Unexpected Groq response: {e}"
+                print(f"[GroqClient Response Error] model={model_name} {last_error_text}")
                 continue
             except requests.exceptions.RequestException as e:
                 print(f"[GroqClient Error] model={model_name} Failed API communication: {e}")
@@ -175,11 +217,13 @@ class GroqClient:
                 response.raise_for_status()
                 data = response.json()
                 answer = data["choices"][0]["message"]["content"].strip()
+                if not answer:
+                    raise ValueError("Groq returned an empty completion")
                 return self._diagnostic_result(
                     True,
                     "online",
                     "Groq connection online",
-                    f"Groq responded successfully using model {model_name}. Response: {answer}",
+                    f"Groq responded successfully. Response: {answer}",
                     "No action required.",
                     fallback_available=True
                 )
@@ -202,16 +246,7 @@ class GroqClient:
                     "Check internet access, school/home network blocking, and the Groq endpoint setting. Katan can still use the local fallback."
                 )
             except requests.exceptions.HTTPError:
-                error_text = response.text
-                try:
-                    error_data = response.json()
-                    error_text = (
-                        error_data.get("error", {}).get("message")
-                        if isinstance(error_data.get("error"), dict)
-                        else error_data.get("error")
-                    ) or error_data.get("message") or error_data.get("detail") or response.text
-                except ValueError:
-                    pass
+                error_text = self._response_error_text(response)
 
                 normalized = (error_text or "").lower()
                 last_error = error_text
@@ -228,7 +263,7 @@ class GroqClient:
                         "Check GROQ_API_KEY in .env and make sure the key is active. Katan can still use the local fallback."
                     )
 
-                if "model not found" in normalized or "model not supported" in normalized:
+                if self._is_model_unavailable(normalized):
                     continue
 
                 return self._diagnostic_result(

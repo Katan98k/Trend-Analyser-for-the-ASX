@@ -178,6 +178,13 @@ def run_analysis():
                 if not published_at:
                     continue
 
+                source = article.get("source")
+                source_name = (
+                    source.get("name")
+                    if isinstance(source, dict)
+                    else "Unknown source"
+                )
+
                 article_sureness = 100 - abs(sentiment_score - risk_score)
                 execute_query(
                     article_insert_query,
@@ -185,7 +192,7 @@ def run_analysis():
                         record_id,
                         article.get("title") or "Untitled article",
                         article.get("description") or "",
-                        (article.get("source") or {}).get("name") or "Unknown source",
+                        source_name or "Unknown source",
                         article.get("url") or "",
                         published_at,
                         sentiment_score,
@@ -237,8 +244,22 @@ def generate_groq_analysis_summary(company_name, ticker, articles, sentiment, ri
         f"what the primary market drivers are, and a closing analyst perspective."
     )
 
-    # Ask Groq to process this specific run when available.
-    ai_response = groq_client.send_request(system_prompt, user_prompt)
+    # Ask Groq to process this specific run when available. A malformed or
+    # unavailable external response must not prevent the local analysis from
+    # being saved.
+    try:
+        ai_response = groq_client.send_request(system_prompt, user_prompt)
+    except Exception as error:
+        print(f"[Analysis Error] Groq summary fallback: {type(error).__name__}")
+        return local_analysis_summary(
+            company_name,
+            ticker,
+            articles,
+            sentiment,
+            risk,
+            sureness,
+            error_message="Groq returned an unexpected response."
+        )
 
     if isinstance(ai_response, str):
         normalized = ai_response.lower()
@@ -249,7 +270,11 @@ def generate_groq_analysis_summary(company_name, ticker, articles, sentiment, ri
             "model not found",
             "could not connect to groq",
             "groq ai could not",
-            "invalid model"
+            "invalid model",
+            "api key is not configured",
+            "api key appears to be invalid",
+            "could not produce a response",
+            "unexpected groq response"
         ]
 
         if any(signal in normalized for signal in error_signals):
@@ -263,7 +288,18 @@ def generate_groq_analysis_summary(company_name, ticker, articles, sentiment, ri
                 error_message=ai_response
             )
 
-    return ai_response
+        if ai_response.strip():
+            return ai_response
+
+    return local_analysis_summary(
+        company_name,
+        ticker,
+        articles,
+        sentiment,
+        risk,
+        sureness,
+        error_message="Groq did not return a usable summary."
+    )
 
 
 def local_analysis_summary(company_name, ticker, articles, sentiment, risk, sureness, error_message=None):

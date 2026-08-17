@@ -87,3 +87,10 @@ CREATE TABLE IF NOT EXISTS ai_messages (
 
 CREATE INDEX IF NOT EXISTS idx_ai_messages_conversation
 ON ai_messages(conversation_id, id);
+
+CREATE TABLE IF NOT EXISTS app_migrations (
+
+    name TEXT PRIMARY KEY,
+
+    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

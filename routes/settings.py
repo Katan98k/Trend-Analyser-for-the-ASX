@@ -45,6 +45,7 @@ def index():
     # Formulate configuration states safely to pass to the template
     system_config = {
         "database_path": getattr(Config, "DATABASE", "Unknown"),
+        "ai_provider": "Groq",
         "has_news_key": bool(getattr(Config, "NEWS_API_KEY", None)),
         "has_groq_key": bool(getattr(Config, "GROQ_API_KEY", None) or getattr(Config, "GROK_API_KEY", None)),
         "news_url": getattr(Config, "NEWS_API_URL", "Unknown"),
@@ -56,6 +57,10 @@ def index():
     }
 
     system_config["groq_model"] = getattr(Config, "GROQ_MODEL", "") or getattr(Config, "GROK_MODEL", "(not set)")
+    system_config["groq_model_display"] = {
+        "openai/gpt-oss-20b": "GPT-OSS 20B (served by Groq)",
+        "openai/gpt-oss-120b": "GPT-OSS 120B (served by Groq)",
+    }.get(system_config["groq_model"], system_config["groq_model"])
     return render_template(
         "settings.html", 
         config=system_config

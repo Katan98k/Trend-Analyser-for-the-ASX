@@ -103,7 +103,7 @@
     </div>
     <div class="card-body">
         {% if records %}
-            <div class="table-responsive">
+            <div class="table-responsive dashboard-table-scroll">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
@@ -121,16 +121,16 @@
                         {% for r in records %}
                             <tr>
                                 <td><span class="badge bg-dark font-monospace px-2 py-1.5 fs-7">{{ r.ticker }}</span></td>
-                                <td class="fw-semibold text-truncate" style="max-width: 200px;">{{ r.company_name }}</td>
+                                <td class="fw-semibold text-truncate dashboard-company">{{ r.company_name }}</td>
                                 <td><small class="text-muted">{{ r.analysis_date }}</small></td>
                                 
                                 <td class="text-center">
                                     {% if r.sentiment_score >= 70 %}
-                                        <span class="badge bg-success-subtle text-success px-2 py-1.5 w-75">Bullish ({{ r.sentiment_score }})</span>
+                                        <span class="badge bg-success-subtle text-success px-2 py-1.5 sentiment-badge">Bullish ({{ r.sentiment_score }})</span>
                                     {% elif r.sentiment_score >= 50 %}
-                                        <span class="badge bg-info-subtle text-info px-2 py-1.5 w-75">Moderate ({{ r.sentiment_score }})</span>
+                                        <span class="badge bg-info-subtle text-info px-2 py-1.5 sentiment-badge">Moderate ({{ r.sentiment_score }})</span>
                                     {% else %}
-                                        <span class="badge bg-danger-subtle text-danger px-2 py-1.5 w-75">Bearish ({{ r.sentiment_score }})</span>
+                                        <span class="badge bg-danger-subtle text-danger px-2 py-1.5 sentiment-badge">Bearish ({{ r.sentiment_score }})</span>
                                     {% endif %}
                                 </td>
 
@@ -152,7 +152,7 @@
                                     <span class="badge bg-secondary rounded-pill">{{ r.article_count }}</span>
                                 </td>
 
-                                <td class="text-end">
+                                <td class="text-end dashboard-actions">
                                     <a href="{{ url_for('history.view_record', record_id=r.id) }}" class="btn btn-sm btn-outline-primary me-1" title="View Detailed Report">
                                         <i class="fa-solid fa-chart-line"></i> View
                                     </a>
